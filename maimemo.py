@@ -10,7 +10,8 @@ user_agents = ['Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, l
                'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/63.0.3239.84 Safari/537.36']
 
 # 1月2日  'https://www.maimemo.com/share/page/?uid=1997795&pid=1098'
-num = 1098 + (datetime.date(year=datetime.datetime.now().year,month=datetime.datetime.now().month,day=datetime.datetime.now().day) - datetime.date(2018,1,2)).days
+now = datetime.datetime.now()
+num = 1098 + (datetime.date(year=now.year,month=now.month,day=now.day) - datetime.date(2018,1,2)).days
 maimemo_url = 'https://www.maimemo.com/share/page/?uid=1997795&pid=' + str(num)
 
 

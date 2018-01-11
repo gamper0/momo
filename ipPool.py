@@ -1,12 +1,11 @@
 from bs4 import BeautifulSoup
 import requests
 import time
+import multiprocessing
 import telnetlib
 
-#n=1为http，n=2为https
-def get_ip_pool(n,total_page_num):
-
-    ip_port_pool = []
+#返回[[ip,port],[ip,port]...]，测试用
+def ip_ports(n,total_page_num):
     ips = []
     ports = []
     # [[ip,port],[ip,port]...]测试用
@@ -38,36 +37,37 @@ def get_ip_pool(n,total_page_num):
             ports.append(port_item.get_text())
         print('port:{}'.format(ports))
 
-        time.sleep(6)
+        time.sleep(3)
 
     # 获得[[ip,port],[ip,port]...]，测试用
     for i in range(len(ips)):
-        ip_port_list = []
         ip = ips[i]
         port = ports[i]
         ip_port_list = [ip, port]
         ip_port_lists.append(ip_port_list)
 
+    return ip_port_lists
 
-    # 测试ip是否可用,并将可用的添加到ip池
-    for i in range(len(ip_port_lists)):
-        try:
-            telnetlib.Telnet(ip_port_lists[i][0], port=ip_port_lists[i][1], timeout=5)
-        except:
-            print(str(i) + '  connect failed')
-        else:
-            print(str(i) + '  success')
-            ip_port_pool.append(ip_port_lists[i][0] + ':' + ip_port_lists[i][1])
+#测试ip能不能用（单个）
+def test_ip_pool(ip_port_list):
+    try:
+        telnetlib.Telnet(ip_port_list[0],port= ip_port_list[1],timeout= 4)
+    except:
+        print('connect failed')
+    else:
+        print('succes')
+        ip_port = ip_port_list[0]+ ':' + ip_port_list[1]
+        return  ip_port
 
-    return ip_port_pool
+#多进程运行test_ip_pool
+def get_ip_pool(n,total_page_num):
+    ip_port_lists = ip_ports(n,total_page_num)
 
+    pool = multiprocessing.Pool()
+    result = pool.map(test_ip_pool, ip_port_lists)
+    pool.close()
+    pool.join()
 
-
-
-
-
-
-# ip = Ip()
-# ip_port_pool = ip.get_ip_pool(2)
-# print(ip_port_pool)
+    ip_pool = [i for i in result if i is not None]
+    return ip_pool
 
